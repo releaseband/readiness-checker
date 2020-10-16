@@ -10,7 +10,6 @@ var (
 	ErrConfigShouldNotBeNil      = errors.New("health config should not be nil")
 	ErrNoStates                  = errors.New("no states")
 	ErrGeneralHealthIsFailed     = errors.New("general health is failed")
-	ErrConditionOfTheObjectIsBad = errors.New("the condition of the object is bad")
 	ErrObjectStateCheckError = errors.New("object state check error")
 )
 
@@ -55,10 +54,6 @@ func (c *Checker) Readiness() error {
 	}
 
 	for _, s := range states {
-		if s.Fatal {
-			return fmt.Errorf("object: %s: %w", s.Name, ErrConditionOfTheObjectIsBad)
-		}
-
 		if s.Err != "" {
 			return fmt.Errorf("object: %s: %w", s.Name, ErrObjectStateCheckError)
 		}
