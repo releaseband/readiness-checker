@@ -7,14 +7,16 @@ import (
 )
 
 var (
-	ErrConfigShouldNotBeNil      = errors.New("health config should not be nil")
-	ErrNoStates                  = errors.New("no states")
-	ErrGeneralHealthIsFailed     = errors.New("general health is failed")
-	ErrObjectStateCheckError = errors.New("object state check error")
+	ErrConfigShouldNotBeNil   = errors.New("health config should not be nil")
+	ErrNoStates               = errors.New("no states")
+	ErrGeneralHealthIsFailed  = errors.New("general health is failed")
+	ErrObjectStateCheckError  = errors.New("object state check error")
+	ErrShutdownSignalReceived = errors.New("shutdown signal received")
 )
 
 type Checker struct {
 	h *health.Health
+	shutdown bool
 }
 
 func NewReadinessChecker() *Checker {
@@ -40,6 +42,10 @@ func (c *Checker) AddCheckers(configs ...*health.Config) error {
 }
 
 func (c *Checker) Readiness() error {
+	if c.shutdown {
+		return ErrShutdownSignalReceived
+	}
+
 	states, failed, err := c.h.State()
 	if err != nil {
 		return fmt.Errorf("unable to fetch states: %w", err)
@@ -60,4 +66,8 @@ func (c *Checker) Readiness() error {
 	}
 
 	return nil
+}
+
+func (c *Checker) Shutdown() {
+	c.shutdown = true
 }
