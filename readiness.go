@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/InVisionApp/go-health/v2"
+	log "github.com/InVisionApp/go-logger"
 )
 
 var (
@@ -15,12 +16,25 @@ var (
 )
 
 type Checker struct {
-	h *health.Health
+	h        *health.Health
 	shutdown bool
 }
 
 func NewReadinessChecker() *Checker {
 	return &Checker{h: health.New()}
+}
+
+func NewReadinessWithLogger(logger log.Logger) *Checker {
+	h := health.New()
+	h.Logger = logger
+
+	return &Checker{
+		h: h,
+	}
+}
+
+func (c *Checker) DisableLogging() {
+	c.h.DisableLogging()
 }
 
 func (c *Checker) Start() error {
