@@ -47,13 +47,7 @@ func (z *ZapAdapter) pretty() []zap.Field {
 }
 
 func (z *ZapAdapter) log(level zapcore.Level, msg ...interface{}) {
-	logger := z.logger
-
-	if len(z.fields) > 0 {
-		logger = logger.With(z.pretty()...)
-	}
-
-	logger.Check(level, parseString(msg...))
+	z.logger.Check(level, parseString(msg...)).Write(z.pretty()...)
 }
 
 func (z *ZapAdapter) Logf(level zapcore.Level, format string, args ...interface{}) {
