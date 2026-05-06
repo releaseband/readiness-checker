@@ -13,6 +13,10 @@ var _ golog.Logger = (*slogAdapter)(nil) // compile-time interface check
 // (github.com/InVisionApp/go-logger).
 type slogAdapter struct{ l *slog.Logger }
 
+func NewSlogAdapter(logger *slog.Logger) *slogAdapter {
+	return &slogAdapter{l: logger}
+}
+
 func (a *slogAdapter) Debug(msg ...any) { a.l.Debug(fmt.Sprint(msg...)) }
 func (a *slogAdapter) Info(msg ...any)  { a.l.Info(fmt.Sprint(msg...)) }
 func (a *slogAdapter) Warn(msg ...any)  { a.l.Warn(fmt.Sprint(msg...)) }

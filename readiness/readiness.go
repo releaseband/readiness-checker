@@ -2,12 +2,12 @@ package readiness
 
 import (
 	"fmt"
-	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/InVisionApp/go-health/v2"
+	golog "github.com/InVisionApp/go-logger"
 )
 
 // Checkable is the interface check implementations must satisfy.
@@ -29,14 +29,14 @@ type Config struct {
 type Option func(*Checker)
 
 // WithLogger enables structured logging via slog.
-func WithLogger(logger *slog.Logger) Option {
+func WithLogger(logger golog.Logger) Option {
 	return func(c *Checker) {
 		if logger == nil {
 			return
 		}
 
 		c.logger = logger
-		c.h.Logger = &slogAdapter{logger}
+		c.h.Logger = logger
 	}
 }
 
@@ -52,7 +52,7 @@ func WithErrorDetails() Option {
 // Checker runs health checks and reports readiness.
 type Checker struct {
 	h      *health.Health
-	logger *slog.Logger
+	logger golog.Logger
 
 	names        map[string]struct{}
 	shutdown     atomic.Bool
@@ -81,9 +81,11 @@ func (c *Checker) AddChecks(configs ...*Config) error {
 		if cfg == nil {
 			return ErrConfigShouldNotBeNil
 		}
+
 		if _, exists := c.names[cfg.Name]; exists {
 			return fmt.Errorf("%w: %s", ErrDuplicateName, cfg.Name)
 		}
+
 		if err := c.h.AddCheck(&health.Config{
 			Name:     cfg.Name,
 			Checker:  cfg.Checker,
@@ -92,6 +94,7 @@ func (c *Checker) AddChecks(configs ...*Config) error {
 		}); err != nil {
 			return fmt.Errorf("add check %q: %w", cfg.Name, err)
 		}
+
 		c.names[cfg.Name] = struct{}{}
 	}
 	return nil

@@ -3,7 +3,6 @@ package readiness
 import (
 	"encoding/json"
 	"errors"
-	"log/slog"
 	"net/http"
 )
 
@@ -32,8 +31,8 @@ func (c *Checker) HTTPHandler() http.Handler {
 
 		encodeErr := json.NewEncoder(w).Encode(c.buildErrorResponse(err))
 		if encodeErr != nil && c.logger != nil {
-			c.logger.Error("failed to encode",
-				slog.Any("error", encodeErr))
+			c.logger.Error("failed to encode readiness error response",
+				"error", encodeErr)
 		}
 	})
 }

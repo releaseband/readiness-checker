@@ -47,7 +47,11 @@ func TestNew_returnsNonNil(t *testing.T) {
 }
 
 func TestNew_withLogger(t *testing.T) {
-	c := readiness.New(readiness.WithLogger(slog.Default()))
+	c := readiness.New(
+		readiness.WithLogger(
+			readiness.NewSlogAdapter(
+				slog.Default())),
+	)
 	if c == nil {
 		t.Fatal("New(WithLogger) returned nil")
 	}
